@@ -1,0 +1,12 @@
+##### Unique name for resources
+export UNIQUENAME="aacademy123456"
+
+##### Resource group and location
+export RG=AACADEMY2
+export LOCATION=northeurope
+
+##### derived variables
+export COSMOSDBNAME="${UNIQUENAME}nosql"
+export STORAGENAME="${UNIQUENAME}strg"
+export FUNCAPP="${UNIQUENAME}func"
+
