@@ -172,6 +172,61 @@ module.exports = function(context, req) {
 };
 ```
 
+#### Update item
+
+Create new Function with these attributes:
+
+* Click on `Functions` and then click `New function` 
+* Click `HTTP trigger`
+* Function name: `ToDoUpdate`
+* Authorization level: `Anonymous`
+
+In the function settings go to `Integrate` and add output parameter for CosmosDB.
+
+Input object:
+* In the `Inputs` section click `New Input`
+* Select `Azure Cosmos DB`
+* Install extension for Cosmos DB
+* Change Database name to: `TestDB`
+* Change Collection name to: `TestCollection`
+* Document ID: `{id}`
+* Partition key: `{pkey}`
+* Define connection to our existing Cosmos DB
+* Save configuration
+
+Output object:
+* In the `Outputs` section click `New Output`
+* Select `Azure Cosmos DB`
+* Install extension for Cosmos DB
+* Change Database name to: `TestDB`
+* Change Collection name to: `TestCollection`
+* Define connection to our existing Cosmos DB
+* Save configuration
+
+Now put this source code to code window of our `ToDoUpdate` function.
+
+```javascript
+module.exports = async function (context, req) {
+    context.log('JavaScript HTTP trigger function processed a request.');
+
+    if(context.bindings.inputDocument._etag != req.body._etag){
+        context.res = {
+            status: 400, /* Defaults to 200 */
+            body: "etag is different " + context.bindings.inputDocument._etag + " | " + req.body._etag
+        };
+    }else{
+        context.bindings.outputDocument = req.body;
+        context.bindings.outputDocument.updated = new Date();
+        context.res = {
+            // status: 200, /* Defaults to 200 */
+            body: context.bindings.outputDocument
+        };
+    }
+
+    context.done();
+};
+```
+
 
 
 
