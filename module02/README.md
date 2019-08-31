@@ -159,9 +159,9 @@ You can customize the look and feel of your developer portal by adding custom co
 
 
 # Samples
-## Global Prerequisities
-    * [Download and install postman](https://www.getpostman.com/downloads/) if you don't already have
-    * Access to AAD tenant with owner rights - we need to create ClientAPP
+## Global Prerequisities 
+* [Download and install postman](https://www.getpostman.com/downloads/) if you don't already have
+* Access to AAD tenant with owner rights - we need to create ClientAPP
 
 1. Authorize API with oauth 2.0
 
