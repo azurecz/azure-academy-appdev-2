@@ -9,3 +9,4 @@ cd azure-academy-appdev-2
 ```
 
 ## [module01 - serverless simple web application](module01/)
+## [module02 - API Management](module02/)
