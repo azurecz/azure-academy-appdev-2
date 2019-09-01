@@ -263,7 +263,8 @@ At this point you can configure the desired values for the remaining parameters,
 
 If you get 200 as a response, your API is secured correctly by Oauth2.
 
-# Your action
+# Your action (max 60 min)
+## Use Azure docs
   * write your own API that:
       * has to be secured by AAD token with application roles
       * extract name and roles from token and set to backend in HTTP header

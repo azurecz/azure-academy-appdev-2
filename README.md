@@ -10,3 +10,5 @@ cd azure-academy-appdev-2
 
 ## [module01 - serverless simple web application](module01/)
 ## [module02 - API Management](module02/)
+## [module03 - Serverless functions Extension](module03/)
+## [module04 - Serverless functions Advanced](module04/)
