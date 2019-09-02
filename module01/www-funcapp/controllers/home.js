@@ -40,7 +40,7 @@ angular.module('myApp.home', ['ngRoute', 'ui.bootstrap'])
     };
 
     $scope.editItemSave = function(item) {
-        $http.post('./api/ToDo', item).success(function(data) {}).finally(function(data) {
+        $http.post('./api/ToDoUpdate', item).success(function(data) {}).finally(function(data) {
             $scope.data.isedit = false;
             $scope.data.item = { comment: "", category: "" };
             $scope.loadData();
