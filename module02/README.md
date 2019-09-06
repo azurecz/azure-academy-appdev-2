@@ -263,11 +263,12 @@ At this point you can configure the desired values for the remaining parameters,
 
 If you get 200 as a response, your API is secured correctly by Oauth2.
 
-# Your action (max 60 min)
+# Your action (60 min)
 ## Use Azure docs
   * write your own API that:
-      * has to be secured by AAD token with application roles
-      * extract name and roles from token and set to backend in HTTP header
+      * has to be secured by AAD token - use Oauth2 and authorization endpoint v1.0
+      * validate JWT on audience claim
+      * extract name from token and set to backend in HTTP header name `username`
       * restrict call only for your IP address 
       * set additional header to response when error occurs - you can test it without subsription key
-      * rate limit to 3 calls every 5 minutes
+      * rate limit to 3 calls every 30 seconds
