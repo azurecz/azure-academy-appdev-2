@@ -270,5 +270,5 @@ If you get 200 as a response, your API is secured correctly by Oauth2.
       * validate JWT on audience claim
       * extract name from token and set to backend in HTTP header name `username`
       * restrict call only for your IP address 
-      * set additional header to response when error occurs - you can test it without subsription key
-      * rate limit to 3 calls every 30 seconds
+      * set additional header name `errorRequestId` with unique RequestId value to response when error occurs - you can test it within IP restrictions
+      * set rate limit to max 3 calls every 30 seconds for every ip and only for succesfull requests
