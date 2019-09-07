@@ -263,8 +263,9 @@ At this point you can configure the desired values for the remaining parameters,
 
 If you get 200 as a response, your API is secured correctly by Oauth2.
 
-# Your action (60 min)
-## Use Azure docs
+# Your action (60 min) - group of 4-6 members
+## Use Azure API Management docs
+## Use Azure function for the backend
   * write your own API that:
       * has to be secured by AAD token - use Oauth2 and authorization endpoint v1.0
       * validate JWT on audience claim
