@@ -53,17 +53,127 @@ The following sections explain the configuration and code that are used for C# s
 
 The **SmsPhoneVerification** function uses the standard *function.json* for orchestrator functions.
 
-[!code-json[Main](~/samples-durable-functions/samples/csx/E4_SmsPhoneVerification/function.json)]
+```json
+{
+  "bindings": [
+    {
+      "name": "context",
+      "type": "orchestrationTrigger",
+      "direction": "in"
+    }
+  ],
+  "disabled": false
+}
+```
 
 Here is the code that implements the function:
 
-### C#
+### C# !NOT TESTED!
 
-[!code-csharp[Main](~/samples-durable-functions/samples/csx/E4_SmsPhoneVerification/run.csx)]
+```c#
+#r "Microsoft.Azure.WebJobs.Extensions.DurableTask"
+
+using System.Threading;
+
+public static async Task<bool> Run(DurableOrchestrationContext context)
+{
+    string phoneNumber = context.GetInput<string>();
+    if (string.IsNullOrEmpty(phoneNumber))
+    {
+        throw new ArgumentNullException(
+            nameof(phoneNumber),
+            "A phone number input is required.");
+    }
+
+    int challengeCode = await context.CallActivityAsync<int>(
+        "E4_SendSmsChallenge",
+        phoneNumber);
+
+    using (var timeoutCts = new CancellationTokenSource())
+    {
+        // The user has 90 seconds to respond with the code they received in the SMS message.
+        DateTime expiration = context.CurrentUtcDateTime.AddSeconds(90);
+        Task timeoutTask = context.CreateTimer(expiration, timeoutCts.Token);
+
+        bool authorized = false;
+        for (int retryCount = 0; retryCount <= 3; retryCount++)
+        {
+            Task<int> challengeResponseTask = 
+                context.WaitForExternalEvent<int>("SmsChallengeResponse");
+                
+            Task winner = await Task.WhenAny(challengeResponseTask, timeoutTask);
+            if (winner == challengeResponseTask)
+            {
+                // We got back a response! Compare it to the challenge code.
+                if (challengeResponseTask.Result == challengeCode)
+                {
+                    authorized = true;
+                    break;
+                }
+            }
+            else
+            {
+                // Timeout expired
+                break;
+            }
+        }
+
+        if (!timeoutTask.IsCompleted)
+        {
+            // All pending timers must be complete or canceled before the function exits.
+            timeoutCts.Cancel();
+        }
+
+        return authorized;
+    }
+}
+
+```
 
 ### JavaScript (Functions 2.x only)
 
-[!code-javascript[Main](~/samples-durable-functions/samples/javascript/E4_SmsPhoneVerification/index.js)]
+``` javascript
+const df = require("durable-functions");
+const moment = require('moment');
+
+module.exports = df.orchestrator(function*(context) {
+    const phoneNumber = context.df.getInput();
+    if (!phoneNumber) {
+        throw "A phone number input is required.";
+    }
+
+    const challengeCode = yield context.df.callActivity("SendSmsChallenge", phoneNumber);
+
+    // The user has 90 seconds to respond with the code they received in the SMS message.
+    const expiration = moment.utc(context.df.currentUtcDateTime).add(90, 's');
+    const timeoutTask = context.df.createTimer(expiration.toDate());
+
+    let authorized = false;
+    for (let i = 0; i <= 3; i++) {
+        const challengeResponseTask = context.df.waitForExternalEvent("SmsChallengeResponse");
+
+        const winner = yield context.df.Task.any([challengeResponseTask, timeoutTask]);
+
+        if (winner === challengeResponseTask) {
+            // We got back a response! Compare it to the challenge code.
+            if (challengeResponseTask.result === challengeCode) {
+                authorized = true;
+                break;
+            }
+        } else {
+            // Timeout expired
+            break;
+        }
+    }
+
+    if (!timeoutTask.isCompleted) {
+        // All pending timers must be complete or canceled before the function exits.
+        timeoutTask.cancel();
+    }
+
+    return authorized;
+});
+```
 
 Once started, this orchestrator function does the following:
 
@@ -84,17 +194,80 @@ The user receives an SMS message with a four-digit code. They have 90 seconds to
 
 The **SendSmsChallenge** function uses the Twilio binding to send the SMS message with the 4-digit code to the end user. The *function.json* is defined as follows:
 
-[!code-json[Main](~/samples-durable-functions/samples/csx/E4_SendSmsChallenge/function.json)]
+```json
+{
+  "bindings": [
+    {
+      "name": "name",
+      "type": "activityTrigger",
+      "direction": "in"
+    },
+    {
+      "type": "twilioSms",
+      "name": "message",
+      "from": "%TwilioPhoneNumber%",
+      "accountSidSetting": "TwilioAccountSid",
+      "authTokenSetting": "TwilioAuthToken",
+      "direction": "out"
+    }
+  ],
+  "disabled": false
+}
+```
 
 And here is the code that generates the 4-digit challenge code and sends the SMS message:
 
-### C#
+### C# NOT TESTED!
+```c#
+#r "Microsoft.Azure.WebJobs.Extensions.DurableTask"
+#r "Microsoft.Azure.WebJobs.Extensions.Twilio"
+#r "Microsoft.Extensions.Logging"
+#r "Newtonsoft.Json"
+#r "Twilio"
 
-[!code-csharp[Main](~/samples-durable-functions/samples/csx/E4_SendSmsChallenge/run.csx)]
+using Twilio.Rest.Api.V2010.Account;
+using Twilio.Types;
+
+public static int Run(
+    string phoneNumber,
+    ILogger log,
+    out CreateMessageOptions message)
+{
+    // Get a random number generator with a random seed (not time-based)
+    var rand = new Random(Guid.NewGuid().GetHashCode());
+    int challengeCode = rand.Next(10000);
+
+    log.LogInformation($"Sending verification code {challengeCode} to {phoneNumber}.");
+
+    message = new CreateMessageOptions(new PhoneNumber(phoneNumber));
+    message.Body = $"Your verification code is {challengeCode:0000}";
+
+    return challengeCode;
+}
+```
 
 ### JavaScript (Functions 2.x only)
 
-[!code-javascript[Main](~/samples-durable-functions/samples/javascript/E4_SendSmsChallenge/index.js)]
+```javascript
+const seedrandom = require("seedrandom");
+const uuidv4 = require("uuidv4");
+
+// Get a random number generator with a random seed (not time-based)
+const rand = seedrandom(uuidv4());
+
+module.exports = async function (context, phoneNumber) {
+    const challengeCode = Math.floor(rand() * 10000);
+
+    context.log(`Sending verification code ${challengeCode} to ${phoneNumber}.`);
+
+    context.bindings.message = {
+        body: `Your verification code is ${challengeCode.toPrecision(4)}`,
+        to: phoneNumber
+    };
+
+    return challengeCode;
+};
+```
 
 This **SendSmsChallenge** function only gets called once, even if the process crashes or gets replayed. This is good because you don't want the end user getting multiple SMS messages. The `challengeCode` return value is automatically persisted, so the orchestrator function always knows what the correct code is.
 

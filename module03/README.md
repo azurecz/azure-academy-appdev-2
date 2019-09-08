@@ -572,10 +572,6 @@ When an orchestration function is given more work to do (for example, a response
 
 During the replay, if the code tries to call a function (or do any other async work), the Durable Task Framework consults the execution history of the current orchestration. If it finds that the activity function has already executed and yielded a result, it replays that function's result and the orchestrator code continues to run. Replay continues until the function code is finished or until it has scheduled new async work.
 
-### Orchestrator code constraints
-
-The replay behavior of orchestrator code creates constraints on the type of code that you can write in an orchestrator function. For example, orchestrator code must be deterministic because it will be replayed multiple times, and it must produce the same result each time.
-
 
 ## Storage and scalability
 
