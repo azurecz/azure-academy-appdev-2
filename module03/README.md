@@ -430,31 +430,6 @@ public static async Task Run([OrchestrationTrigger] DurableOrchestrationContext 
 }
 ```
 
-#### C# script
-
-```csharp
-public static async Task Run(DurableOrchestrationContext context)
-{
-    await context.CallActivityAsync("RequestApproval");
-    using (var timeoutCts = new CancellationTokenSource())
-    {
-        DateTime dueTime = context.CurrentUtcDateTime.AddHours(72);
-        Task durableTimeout = context.CreateTimer(dueTime, timeoutCts.Token);
-
-        Task<bool> approvalEvent = context.WaitForExternalEvent<bool>("ApprovalEvent");
-        if (approvalEvent == await Task.WhenAny(approvalEvent, durableTimeout))
-        {
-            timeoutCts.Cancel();
-            await context.CallActivityAsync("ProcessApproval", approvalEvent.Result);
-        }
-        else
-        {
-            await context.CallActivityAsync("Escalate");
-        }
-    }
-}
-```
-
 #### JavaScript (Functions 2.x only)
 
 ```javascript
@@ -479,7 +454,7 @@ module.exports = df.orchestrator(function*(context) {
 
 To create the durable timer, call `context.CreateTimer` (.NET) or `context.df.createTimer` (JavaScript). The notification is received by `context.WaitForExternalEvent` (.NET) or `context.df.waitForExternalEvent` (JavaScript). Then, `Task.WhenAny` (.NET) or `context.df.Task.any` (JavaScript) is called to decide whether to escalate (timeout happens first) or process the approval (the approval is received before timeout).
 
-An external client can deliver the event notification to a waiting orchestrator function by using either the [built-in HTTP APIs](durable-functions-http-api.md#raise-event) or by using the [DurableOrchestrationClient.RaiseEventAsync](https://azure.github.io/azure-functions-durable-extension/api/Microsoft.Azure.WebJobs.DurableOrchestrationClient.html#Microsoft_Azure_WebJobs_DurableOrchestrationClient_RaiseEventAsync_System_String_System_String_System_Object_) API from another function:
+An external client can deliver the event notification to a waiting orchestrator function by using either the built-in HTTP APIs or by using the [DurableOrchestrationClient.RaiseEventAsync](https://azure.github.io/azure-functions-durable-extension/api/Microsoft.Azure.WebJobs.DurableOrchestrationClient.html#Microsoft_Azure_WebJobs_DurableOrchestrationClient_RaiseEventAsync_System_String_System_String_System_Object_) API from another function:
 
 #### Precompiled C#
 
@@ -487,16 +462,6 @@ An external client can deliver the event notification to a waiting orchestrator 
 public static async Task Run(
   [HttpTrigger] string instanceId,
   [OrchestrationClient] DurableOrchestrationClient client)
-{
-    bool isApproved = true;
-    await client.RaiseEventAsync(instanceId, "ApprovalEvent", isApproved);
-}
-```
-
-#### C# Script
-
-```csharp
-public static async Task Run(string instanceId, DurableOrchestrationClient client)
 {
     bool isApproved = true;
     await client.RaiseEventAsync(instanceId, "ApprovalEvent", isApproved);
@@ -523,7 +488,7 @@ The sixth pattern is about aggregating event data over a period of time into a s
 
 The tricky thing about trying to implement this pattern with normal, stateless functions is that concurrency control becomes a huge challenge. Not only do you need to worry about multiple threads modifying the same data at the same time, you also need to worry about ensuring that the aggregator only runs on a single VM at a time.
 
-Using a [Durable Entity function](durable-functions-preview.md#entity-functions), one can implement this pattern easily as a single function.
+Using a Durable Entity function, one can implement this pattern easily as a single function.
 
 ```csharp
 [FunctionName("Counter")]
@@ -589,9 +554,9 @@ public static async Task Run(
 Dynamically generated proxies are also available for signaling entities in a type-safe way. And in addition to signaling, clients can also query for the state of an entity function using methods on the `orchestrationClient` binding.
 
 > [!NOTE]
-> Entity functions are currently only available in the [Durable Functions 2.0 preview](durable-functions-preview.md).
+> Entity functions are currently in preview.
 
-## The technology
+# The technology in detail
 
 Behind the scenes, the Durable Functions extension is built on top of the [Durable Task Framework](https://github.com/Azure/durabletask), an open-source library on GitHub that's used to build durable task orchestrations. Like Azure Functions is the serverless evolution of Azure WebJobs, Durable Functions is the serverless evolution of the Durable Task Framework. Microsoft and other organizations use the Durable Task Framework extensively to automate mission-critical processes. It's a natural fit for the serverless Azure Functions environment.
 
@@ -605,11 +570,11 @@ Billing for the orchestrator function stops if you're using the Azure Functions 
 
 When an orchestration function is given more work to do (for example, a response message is received or a durable timer expires), the orchestrator wakes up and re-executes the entire function from the start to rebuild the local state. 
 
-During the replay, if the code tries to call a function (or do any other async work), the Durable Task Framework consults the execution history of the current orchestration. If it finds that the [activity function](durable-functions-types-features-overview.md#activity-functions) has already executed and yielded a result, it replays that function's result and the orchestrator code continues to run. Replay continues until the function code is finished or until it has scheduled new async work.
+During the replay, if the code tries to call a function (or do any other async work), the Durable Task Framework consults the execution history of the current orchestration. If it finds that the activity function has already executed and yielded a result, it replays that function's result and the orchestrator code continues to run. Replay continues until the function code is finished or until it has scheduled new async work.
 
 ### Orchestrator code constraints
 
-The replay behavior of orchestrator code creates constraints on the type of code that you can write in an orchestrator function. For example, orchestrator code must be deterministic because it will be replayed multiple times, and it must produce the same result each time. For the complete list of constraints, see [Orchestrator code constraints](durable-functions-checkpointing-and-replay.md#orchestrator-code-constraints).
+The replay behavior of orchestrator code creates constraints on the type of code that you can write in an orchestrator function. For example, orchestrator code must be deterministic because it will be replayed multiple times, and it must produce the same result each time.
 
 
 ## Storage and scalability
@@ -832,7 +797,7 @@ The task hub name will be set to the value of the `MyTaskHub` app setting. The f
     "MyTaskHub" : "samplehubname"
   }
 }
-
+```
 
 Task hub names must start with a letter and consist of only letters and numbers. If not specified, the default name is **DurableFunctionsHub**.
 
