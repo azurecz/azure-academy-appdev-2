@@ -645,9 +645,9 @@ Scaling can vary on a number of factors, and scale differently based on the trig
 Different triggers may also have different scaling limits as well as documented below:
 
 
-# Versioning in Durable Functions (Azure Functions)
+# Versioning in Durable Functions
 
-It is inevitable that functions will be added, removed, and changed over the lifetime of an application. [Durable Functions](durable-functions-overview.md) allows chaining functions together in ways that weren't previously possible, and this chaining affects how you can handle versioning.
+It is inevitable that functions will be added, removed, and changed over the lifetime of an application. Durable Functions allows chaining functions together in ways that weren't previously possible, and this chaining affects how you can handle versioning.
 
 ## How to handle breaking changes
 
@@ -773,7 +773,7 @@ We recommend that you deploy the new version of the function app to a new [Deplo
 
 # Task hubs in Durable Functions (Azure Functions)
 
-A *task hub* in [Durable Functions](durable-functions-overview.md) is a logical container for Azure Storage resources that are used for orchestrations. Orchestrator and activity functions can only interact with each other when they belong to the same task hub.
+A *task hub* in Durable Functions is a logical container for Azure Storage resources that are used for orchestrations. Orchestrator and activity functions can only interact with each other when they belong to the same task hub.
 
 If multiple function apps share a storage account, each function app *must* be configured with a separate task hub name. A storage account can contain multiple task hubs. The following diagram illustrates one task hub per function app in shared and dedicated storage accounts.
 
