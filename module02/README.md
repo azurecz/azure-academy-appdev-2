@@ -79,20 +79,13 @@ The system is made up of the following components:
   * Try out an API via the interactive console.
   * Create an account and subscribe to get API keys.
   * Access analytics on their own usage.
-
-For more information, see the [Cloud-based API Management: Harnessing the Power of APIs](https://j.mp/ms-apim-whitepaper) PDF whitepaper. This introductory whitepaper on API Management by CITO Research covers: 
- 
- * Common API requirements and challenges
- * Decoupling APIs and presenting facades
- * Getting developers up and running quickly
- * Securing access
- * Analytics and metrics
- * Gaining control and insight with an API Management platform
- * Using cloud vs on-premises solutions
- * Azure API Management
  
 ## <a name="apis"> </a>APIs and operations
-APIs are the foundation of an API Management service instance. Each API represents  a set of operations available to developers. Each API contains a reference to the back-end service that implements the API, and its operations map to the operations implemented by the back-end service. Operations in API Management are highly configurable, with control over URL mapping, query and path parameters, request and response content, and operation response caching. Rate limit, quotas, and IP restriction policies can also be implemented at the API or individual operation level.
+APIs are the foundation of an API Management service instance. 
+* Each API represents  a set of operations available to developers. 
+* Each API contains a reference to the back-end service that implements the API, and its operations map to the operations implemented by the back-end service. 
+* Operations in API Management are highly configurable, with control over URL mapping, query and path parameters, request and response content, and operation response caching. 
+* Rate limit, quotas, and IP restriction policies can also be implemented at the API or individual operation level.
 
 
 ## <a name="products"> </a> Products
@@ -158,12 +151,10 @@ The developer portal is where developers can learn about your APIs, view and cal
 You can customize the look and feel of your developer portal by adding custom content, customizing styles, and adding your branding.
 
 
-# Samples
+# Authorize API with Oauth 2.0 sample
 ## Global Prerequisities 
 * [Download and install postman](https://www.getpostman.com/downloads/) if you don't already have
 * Access to AAD tenant with owner rights - we need to create ClientAPP
-
-1. Authorize API with oauth 2.0
 
 Many APIs support [OAuth 2.0](https://oauth.net/2/) to secure the API and ensure that only valid users have access, and they can only access resources to which they're entitled. In order to use Azure API Management's interactive Developer Console with such APIs, the service allows you to configure your service instance to work with your OAuth 2.0 enabled API.
 
