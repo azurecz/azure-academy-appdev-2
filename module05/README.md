@@ -1,5 +1,7 @@
 # Serverless data processing 
 
+This sample is based on original repository there: https://github.com/valda-z/demo-azure-bi-analytic
+
 Demonstration of event processing and handling which uses these technologies:
 
 * Azure Function App - Webhook API for data collection
