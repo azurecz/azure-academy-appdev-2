@@ -145,6 +145,8 @@ The configuration is divided into `inbound`, `backend`, `outbound`, and `on-erro
 </policies> 
 ```
 
+* [Link to policy expressions](https://docs.microsoft.com/en-us/azure/api-management/api-management-policy-expressions)
+
 ## <a name="developer-portal"> </a> Developer portal
 The developer portal is where developers can learn about your APIs, view and call operations, and subscribe to products. Prospective customers can visit the developer portal, view APIs and operations, and sign up. The URL for your developer portal is located on the dashboard in the Azure portal for your API Management service instance.
 
