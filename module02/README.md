@@ -11,6 +11,8 @@ This quickstart describes the steps for creating a new API Management instance u
 
 Log in to the Azure portal at https://portal.azure.com.
 
+The images are only ILLUSTRATIVE. Please set your own values.
+
 ## Create a new service
 
 ![New Azure API Management instance](./media/get-started-create-service-instance/00-CreateResource-01.png)
